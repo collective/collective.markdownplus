@@ -184,29 +184,213 @@
       .replace(/'/g, "&#39;");
   }
 
-  function toHtml(markdown) {
-    var escaped = escapeHtml(markdown);
+  function parseInline(value) {
+    var placeholders = [];
+    var html = escapeHtml(value || "");
 
-    escaped = escaped.replace(/```([\s\S]*?)```/g, function (_, block) {
-      return '<pre class="mp-code"><code>' + block + "</code></pre>";
+    html = html.replace(/`([^`]+)`/g, function (_, code) {
+      var token = "@@MP_CODE_" + placeholders.length + "@@";
+      placeholders.push('<code class="mp-inline-code">' + code + "</code>");
+      return token;
     });
-    escaped = escaped.replace(/^###\s+(.*)$/gm, '<h3 class="mp-h3">$1</h3>');
-    escaped = escaped.replace(/^##\s+(.*)$/gm, '<h2 class="mp-h2">$1</h2>');
-    escaped = escaped.replace(/^#\s+(.*)$/gm, '<h1 class="mp-h1">$1</h1>');
-    escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="mp-strong">$1</strong>');
-    escaped = escaped.replace(/\*(.*?)\*/g, '<em class="mp-em">$1</em>');
-    escaped = escaped.replace(/`([^`]+)`/g, '<code class="mp-inline-code">$1</code>');
-    escaped = escaped.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
 
-    return escaped
-      .split(/\n\s*\n/)
-      .map(function (chunk) {
-        if (/^\s*<h[1-3]|^\s*<pre/.test(chunk)) {
-          return chunk;
+    html = html.replace(/\[([^\]]+)\]\(([^)\s]+(?:\s+"[^"]*")?)\)/g, function (_, text, url) {
+      return '<a href="' + url + '" target="_blank" rel="noreferrer noopener">' + text + "</a>";
+    });
+    html = html.replace(/~~(.+?)~~/g, '<del class="mp-del">$1</del>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="mp-strong">$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em class="mp-em">$1</em>');
+
+    placeholders.forEach(function (snippet, index) {
+      html = html.replace("@@MP_CODE_" + index + "@@", snippet);
+    });
+
+    return html;
+  }
+
+  function splitTableRow(line) {
+    var trimmed = (line || "").trim();
+    if (trimmed.charAt(0) === "|") {
+      trimmed = trimmed.slice(1);
+    }
+    if (trimmed.charAt(trimmed.length - 1) === "|") {
+      trimmed = trimmed.slice(0, -1);
+    }
+    return trimmed.split("|").map(function (cell) {
+      return cell.trim();
+    });
+  }
+
+  function isTableSeparatorLine(line) {
+    var trimmed = (line || "").trim();
+    if (!trimmed || trimmed.indexOf("|") === -1) {
+      return false;
+    }
+    return /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(trimmed);
+  }
+
+  function parseTableAlignments(separatorLine) {
+    return splitTableRow(separatorLine).map(function (cell) {
+      var left = cell.charAt(0) === ":";
+      var right = cell.charAt(cell.length - 1) === ":";
+      if (left && right) {
+        return "center";
+      }
+      if (right) {
+        return "right";
+      }
+      if (left) {
+        return "left";
+      }
+      return "";
+    });
+  }
+
+  function parseBlocks(markdown) {
+    var lines = (markdown || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+    var i = 0;
+    var html = [];
+
+    function isBlank(line) {
+      return !line || /^\s*$/.test(line);
+    }
+
+    while (i < lines.length) {
+      var line = lines[i] || "";
+
+      if (isBlank(line)) {
+        i += 1;
+        continue;
+      }
+
+      if (/^```/.test(line)) {
+        var info = line.replace(/^```\s*/, "").trim();
+        var codeLines = [];
+        i += 1;
+        while (i < lines.length && !/^```/.test(lines[i])) {
+          codeLines.push(lines[i]);
+          i += 1;
         }
-        return "<p>" + chunk.replace(/\n/g, "<br />") + "</p>";
-      })
-      .join("\n");
+        if (i < lines.length) {
+          i += 1;
+        }
+        var languageClass = info ? ' class="language-' + escapeHtml(info) + '"' : "";
+        html.push('<pre class="mp-code"><code' + languageClass + ">" + escapeHtml(codeLines.join("\n")) + "</code></pre>");
+        continue;
+      }
+
+      var heading = /^(#{1,6})\s+(.*)$/.exec(line);
+      if (heading) {
+        var level = heading[1].length;
+        var headingClass = level <= 3 ? ' class="mp-h' + level + '"' : "";
+        html.push("<h" + level + headingClass + ">" + parseInline(heading[2].trim()) + "</h" + level + ">");
+        i += 1;
+        continue;
+      }
+
+      if (/^\s*([-*_])\s*\1\s*\1([\s\1]*)$/.test(line)) {
+        html.push('<hr class="mp-hr" />');
+        i += 1;
+        continue;
+      }
+
+      if (line.indexOf("|") !== -1 && i + 1 < lines.length && isTableSeparatorLine(lines[i + 1])) {
+        var headers = splitTableRow(line);
+        var aligns = parseTableAlignments(lines[i + 1]);
+        var bodyRows = [];
+        i += 2;
+        while (i < lines.length && lines[i].indexOf("|") !== -1 && !isBlank(lines[i])) {
+          bodyRows.push(splitTableRow(lines[i]));
+          i += 1;
+        }
+
+        var table = ['<table class="mp-table"><thead><tr>'];
+        headers.forEach(function (cell, index) {
+          var align = aligns[index] ? ' style="text-align:' + aligns[index] + '"' : "";
+          table.push("<th" + align + ">" + parseInline(cell) + "</th>");
+        });
+        table.push("</tr></thead>");
+        if (bodyRows.length) {
+          table.push("<tbody>");
+          bodyRows.forEach(function (row) {
+            table.push("<tr>");
+            row.forEach(function (cell, index) {
+              var align = aligns[index] ? ' style="text-align:' + aligns[index] + '"' : "";
+              table.push("<td" + align + ">" + parseInline(cell) + "</td>");
+            });
+            table.push("</tr>");
+          });
+          table.push("</tbody>");
+        }
+        table.push("</table>");
+        html.push(table.join(""));
+        continue;
+      }
+
+      var ulMatch = /^\s*[-*+]\s+(.+)$/.exec(line);
+      var olMatch = /^\s*\d+\.\s+(.+)$/.exec(line);
+      if (ulMatch || olMatch) {
+        var isOrdered = !!olMatch;
+        var tag = isOrdered ? "ol" : "ul";
+        var items = [];
+
+        while (i < lines.length) {
+          var current = lines[i] || "";
+          var match = isOrdered
+            ? /^\s*\d+\.\s+(.+)$/.exec(current)
+            : /^\s*[-*+]\s+(.+)$/.exec(current);
+          if (!match) {
+            break;
+          }
+          var itemText = match[1];
+          var taskMatch = /^\[( |x|X)\]\s+(.+)$/.exec(itemText);
+          if (taskMatch) {
+            var checked = taskMatch[1].toLowerCase() === "x";
+            items.push(
+              '<li class="mp-task-item"><input type="checkbox" disabled="disabled"'
+              + (checked ? ' checked="checked"' : "")
+              + " /> "
+              + parseInline(taskMatch[2])
+              + "</li>"
+            );
+          } else {
+            items.push("<li>" + parseInline(itemText) + "</li>");
+          }
+          i += 1;
+        }
+
+        html.push("<" + tag + " class=\"mp-list\">" + items.join("") + "</" + tag + ">");
+        continue;
+      }
+
+      if (/^\s*>\s?/.test(line)) {
+        var quoteLines = [];
+        while (i < lines.length && /^\s*>\s?/.test(lines[i])) {
+          quoteLines.push(lines[i].replace(/^\s*>\s?/, ""));
+          i += 1;
+        }
+        html.push('<blockquote class="mp-quote">' + parseBlocks(quoteLines.join("\n")) + "</blockquote>");
+        continue;
+      }
+
+      var paragraphLines = [line];
+      i += 1;
+      while (i < lines.length && !isBlank(lines[i])) {
+        if (/^```/.test(lines[i])) {
+          break;
+        }
+        paragraphLines.push(lines[i]);
+        i += 1;
+      }
+
+      html.push("<p>" + parseInline(paragraphLines.join("\n")).replace(/\n/g, "<br />") + "</p>");
+    }
+
+    return html.join("\n");
+  }
+
+  function toHtml(markdown) {
+    return parseBlocks(markdown || "");
   }
 
   function enableForTextarea(textarea) {

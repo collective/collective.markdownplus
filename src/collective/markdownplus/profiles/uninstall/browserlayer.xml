@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<layers>
+  <layer
+      name="collective.markdownplus"
+      interface="collective.markdownplus.interfaces.IMarkdownPlusLayer"
+      remove="true"
+      />
+</layers>

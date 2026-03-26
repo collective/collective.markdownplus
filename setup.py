@@ -29,6 +29,9 @@ setup(
     install_requires=[
         "setuptools",
         "Plone",
+        "Markdown",
+        "Pygments",
+        "mdx-linkify",
         "plone.app.z3cform",
         "plone.app.textfield",
         "z3c.form",

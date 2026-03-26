@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <registry>
-  <record field="allowed_types"
-          interface="plone.base.interfaces.IMarkupSchema"
-          name="plone.allowed_types"
-  >
+  <record
+      field="allowed_types"
+      interface="plone.base.interfaces.IMarkupSchema"
+      name="plone.allowed_types"
+      >
     <value>
       <element>text/html</element>
-      <element>text/x-web-markdown</element>
     </value>
   </record>
-  <record field="markdown_extensions"
-          interface="plone.base.interfaces.IMarkupSchema"
-          name="plone.markdown_extensions"
-  >
+  <record
+      field="markdown_extensions"
+      interface="plone.base.interfaces.IMarkupSchema"
+      name="plone.markdown_extensions"
+      >
     <value>
       <element>markdown.extensions.fenced_code</element>
       <element>markdown.extensions.nl2br</element>
       <element>markdown.extensions.extra</element>
       <element>markdown.extensions.codehilite</element>
-      <element>mdx_linkify</element>
     </value>
   </record>
 </registry>

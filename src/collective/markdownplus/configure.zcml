@@ -13,4 +13,12 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 
+  <gs:registerProfile
+      name="uninstall"
+      title="collective.markdownplus (uninstall)"
+      directory="profiles/uninstall"
+      description="Uninstalls collective.markdownplus."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
 </configure>
