@@ -1,0 +1,23 @@
+---
+plone_version: 6.1-latest
+python: python3
+log_level: info
+
+# Run this by default when `plonex` is called without an action.
+default_actions:
+  - zeoclient fg
+
+environment_vars:
+  PYTHONWARNINGS: ignore:::pkg_resources
+
+services:
+  - template:
+      run_for: supervisor
+      source_path: resource://plonex.supervisor.templates:program.conf.j2
+      target_path: tmp/supervisor/etc/supervisor/zeoserver.conf
+      options:
+        program: zeoserver
+        command: plonex zeoserver
+        process_name: zeoserver
+        directory: "{{ target }}"
+        priority: 1

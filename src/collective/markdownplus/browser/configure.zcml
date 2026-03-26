@@ -1,0 +1,27 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:plone="http://namespaces.plone.org/plone"
+>
+
+  <browser:resourceDirectory
+      name="collective.markdownplus"
+      directory="resources"
+      />
+
+  <adapter
+      factory=".widget.MarkdownEditorFieldWidget"
+     for="plone.app.textfield.interfaces.IRichText
+         collective.markdownplus.interfaces.IMarkdownPlusLayer"
+      provides="z3c.form.interfaces.IFieldWidget"
+      />
+
+  <browser:viewlet
+      name="collective.markdownplus.assets"
+      manager="plone.app.layout.viewlets.interfaces.IHtmlHead"
+      class=".viewlets.MarkdownAssetsViewlet"
+      layer="collective.markdownplus.interfaces.IMarkdownPlusLayer"
+      permission="zope2.View"
+      />
+
+</configure>

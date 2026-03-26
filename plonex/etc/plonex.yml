@@ -1,0 +1,29 @@
+# MOVED — this file is no longer active.
+# The canonical configuration is now at etc/plonex.yml in the package root.
+# plonex reads from there when the package root is used as the target.
+
+environment_vars:
+  PYTHONWARNINGS: ignore:::pkg_resources
+
+services:
+  - template:
+      run_for: supervisor
+      source_path: resource://plonex.supervisor.templates:program.conf.j2
+      target_path: tmp/supervisor/etc/supervisor/zeoserver.conf
+      options:
+        program: zeoserver
+        command: plonex zeoserver
+        process_name: zeoserver
+        directory: "{{ target }}"
+        priority: 1
+
+  - template:
+      run_for: supervisor
+      source_path: resource://plonex.supervisor.templates:program.conf.j2
+      target_path: tmp/supervisor/etc/supervisor/zeoclient.conf
+      options:
+        program: zeoclient
+        command: plonex zeoclient
+        process_name: zeoclient
+        directory: "{{ target }}"
+        priority: 2

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<registry>
+  <record field="allowed_types"
+          interface="plone.base.interfaces.IMarkupSchema"
+          name="plone.allowed_types"
+  >
+    <value purge="false">
+      <element>text/x-web-markdown</element>
+    </value>
+  </record>
+</registry>

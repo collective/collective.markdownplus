@@ -1,0 +1,16 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:gs="http://namespaces.zope.org/genericsetup"
+>
+
+  <include package=".browser" />
+
+  <gs:registerProfile
+      name="default"
+      title="collective.markdownplus"
+      directory="profiles/default"
+      description="Adds a markdown widget for rich text fields with MIME text/markdown."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
+</configure>

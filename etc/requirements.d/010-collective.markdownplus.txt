@@ -1,0 +1,3 @@
+# Editable install of this package into the plonex virtualenv.
+# The target (package root) is the current directory.
+-e .[test]
