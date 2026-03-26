@@ -235,6 +235,45 @@
       return;
     }
 
+    function looksLikeMermaidSource(source) {
+      var firstLine = (source || "").trim().split(/\r?\n/)[0] || "";
+      return /^(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|journey|gantt|pie|mindmap|timeline|gitGraph|quadrantChart|xychart-beta|requirementDiagram|C4Context|C4Container|C4Component|C4Dynamic|C4Deployment)\b/.test(firstLine);
+    }
+
+    function replaceCodeBlockWithMermaid(codeNode) {
+      var pre = codeNode.closest("pre");
+      if (!pre || !pre.parentNode) {
+        return;
+      }
+
+      var source = (codeNode.textContent || "").trim();
+      if (!source) {
+        return;
+      }
+
+      var mermaidNode = document.createElement("div");
+      mermaidNode.className = "mp-mermaid mermaid";
+      mermaidNode.textContent = source;
+      pre.parentNode.replaceChild(mermaidNode, pre);
+    }
+
+    // Preferred path: language class survives markdown rendering.
+    Array.prototype.slice
+      .call(root.querySelectorAll("pre code.language-mermaid, pre code.lang-mermaid"))
+      .forEach(replaceCodeBlockWithMermaid);
+
+    // Fallback path: codehilite wrapper without language class.
+    Array.prototype.slice
+      .call(root.querySelectorAll(".codehilite > pre > code"))
+      .forEach(function (codeNode) {
+        if (codeNode.className) {
+          return;
+        }
+        if (looksLikeMermaidSource(codeNode.textContent || "")) {
+          replaceCodeBlockWithMermaid(codeNode);
+        }
+      });
+
     if (!mermaidConfigured && typeof window.mermaid.initialize === "function") {
       window.mermaid.initialize({ startOnLoad: false });
       mermaidConfigured = true;

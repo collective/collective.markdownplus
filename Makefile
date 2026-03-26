@@ -1,5 +1,5 @@
 PYGMENTIZE ?= .venv/bin/pygmentize
-PYGMENTS_STYLE ?= default
+PYGMENTS_STYLE ?= monokai
 PYGMENTS_SELECTOR ?= .codehilite
 PYGMENTS_CSS ?= src/collective/markdownplus/browser/resources/pygmentize.css
 PYTHON ?= .venv/bin/python
