@@ -26,7 +26,10 @@ class TestWidgetFactory(unittest.TestCase):
     def test_markdown_widget_default_options(self):
         widget = MarkdownEditorWidget(TestRequest())
 
-        self.assertEqual({"preview": True, "theme": "light"}, widget.get_markdown_options())
+        self.assertEqual(
+            {"preview": True, "theme": "light", "previewUrl": ""},
+            widget.get_markdown_options(),
+        )
 
 
 class TestRichTextMarkdownWidget(unittest.TestCase):

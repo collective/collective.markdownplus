@@ -6,9 +6,11 @@
     "text/x-web-markdown": true,
   };
   var instances = new WeakMap();
+  var mermaidConfigured = false;
 
   function MarkdownPlus(textarea) {
     this.textarea = textarea;
+    this.options = readPatternOptions(textarea);
     this.wrapper = null;
     this.editorPane = null;
     this.toolbar = null;
@@ -18,6 +20,7 @@
     this.originalTextareaNextSibling = textarea.nextSibling;
     this.originalSelectorParent = null;
     this.originalSelectorNextSibling = null;
+    this.renderNonce = 0;
     this.onInput = this.handleInput.bind(this);
     this.onResize = this.syncPaneHeights.bind(this);
   }
@@ -172,8 +175,152 @@
 
   MarkdownPlus.prototype.renderPreview = function () {
     var source = this.textarea.value || "";
-    this.preview.innerHTML = toHtml(source);
+    var previewUrl = this.options.previewUrl;
+    var currentNonce = this.renderNonce + 1;
+    this.renderNonce = currentNonce;
+
+    if (!previewUrl) {
+      this.setPreviewHtml(toHtml(source));
+      return;
+    }
+
+    requestServerRender(previewUrl, source, this.textarea)
+      .then(function (html) {
+        if (this.renderNonce !== currentNonce) {
+          return;
+        }
+        this.setPreviewHtml(html);
+      }.bind(this))
+      .catch(function () {
+        if (this.renderNonce !== currentNonce) {
+          return;
+        }
+        this.setPreviewHtml(toHtml(source));
+      }.bind(this));
   };
+
+  MarkdownPlus.prototype.setPreviewHtml = function (html) {
+    this.preview.innerHTML = html;
+    hydrateRenderedMarkdown(this.preview);
+  };
+
+  function hydrateRenderedMarkdown(root) {
+    if (!root) {
+      return;
+    }
+
+    renderMath(root);
+    renderMermaid(root);
+  }
+
+  function renderMath(root) {
+    if (!root || typeof window.renderMathInElement !== "function") {
+      return;
+    }
+
+    window.renderMathInElement(root, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false,
+      strict: "ignore"
+    });
+  }
+
+  function renderMermaid(root) {
+    if (!root || !window.mermaid) {
+      return;
+    }
+
+    if (!mermaidConfigured && typeof window.mermaid.initialize === "function") {
+      window.mermaid.initialize({ startOnLoad: false });
+      mermaidConfigured = true;
+    }
+
+    var nodes = Array.prototype.slice.call(root.querySelectorAll(".mermaid"));
+    if (!nodes.length) {
+      return;
+    }
+
+    if (typeof window.mermaid.run === "function") {
+      window.mermaid.run({ nodes: nodes }).catch(function () {
+        // Keep markdown content visible if Mermaid parsing fails.
+      });
+      return;
+    }
+
+    if (typeof window.mermaid.init === "function") {
+      window.mermaid.init(undefined, nodes);
+    }
+  }
+
+  function getCsrfToken(textarea) {
+    var form = textarea && textarea.form ? textarea.form : null;
+    var tokenInput = form
+      ? form.querySelector('input[name="_authenticator"]')
+      : document.querySelector('input[name="_authenticator"]');
+
+    return tokenInput && tokenInput.value ? tokenInput.value : "";
+  }
+
+  function requestServerRender(previewUrl, source, textarea) {
+    var token = getCsrfToken(textarea);
+    var body = "text=" + encodeURIComponent(source || "");
+    if (token) {
+      body += "&_authenticator=" + encodeURIComponent(token);
+    }
+
+    var headers = {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    };
+    if (token) {
+      headers["X-CSRF-TOKEN"] = token;
+    }
+
+    return fetch(previewUrl, {
+      method: "POST",
+      headers: headers,
+      body: body,
+      credentials: "same-origin",
+    }).then(function (response) {
+      if (!response.ok) {
+        throw new Error("Preview request failed");
+      }
+      return response.json();
+    }).then(function (payload) {
+      return payload && payload.html ? payload.html : "";
+    });
+  }
+
+  function readPatternOptions(textarea) {
+    var raw = textarea.getAttribute("data-pat-markdownplus");
+    if (!raw) {
+      return {};
+    }
+
+    try {
+      return JSON.parse(raw);
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function inferPreviewUrl(textarea) {
+    var action = textarea && textarea.form ? (textarea.form.getAttribute("action") || "") : "";
+    var current = action || window.location.href || "";
+
+    // Remove query/hash and trailing /edit so the preview endpoint targets context.
+    current = current.split("#")[0].split("?")[0];
+    current = current.replace(/\/edit$/, "");
+
+    if (!current) {
+      return "";
+    }
+    return current + "/@@markdownplus-preview";
+  }
 
   function escapeHtml(value) {
     return value
@@ -432,8 +579,12 @@
     var isMarkdown = !!MARKDOWN_MIME_TYPES[select.value];
     findTargetTextareasForSelect(select).forEach(function (textarea) {
       if (isMarkdown) {
+        var options = readPatternOptions(textarea);
+        if (!options.previewUrl) {
+          options.previewUrl = inferPreviewUrl(textarea);
+        }
         textarea.classList.add("pat-markdownplus");
-        textarea.setAttribute("data-pat-markdownplus", '{"preview": true, "theme": "light"}');
+        textarea.setAttribute("data-pat-markdownplus", JSON.stringify(options));
         enableForTextarea(textarea);
       } else {
         disableForTextarea(textarea);
@@ -463,6 +614,8 @@
     document.querySelectorAll("textarea.pat-markdownplus").forEach(function (textarea) {
       enableForTextarea(textarea);
     });
+
+    hydrateRenderedMarkdown(document.body || document);
   }
 
   if (document.readyState === "loading") {

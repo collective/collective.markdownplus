@@ -14,11 +14,45 @@
           name="plone.markdown_extensions"
   >
     <value>
+      <element>markdown.extensions.abbr</element>
+      <element>markdown.extensions.admonition</element>
+      <element>markdown.extensions.attr_list</element>
       <element>markdown.extensions.fenced_code</element>
-      <element>markdown.extensions.nl2br</element>
-      <element>markdown.extensions.extra</element>
       <element>markdown.extensions.codehilite</element>
+      <element>markdown.extensions.def_list</element>
+      <element>markdown.extensions.extra</element>
+      <element>markdown.extensions.footnotes</element>
+      <element>markdown.extensions.md_in_html</element>
+      <element>markdown.extensions.meta</element>
+      <element>markdown.extensions.nl2br</element>
+      <element>markdown.extensions.sane_lists</element>
+      <element>markdown.extensions.smarty</element>
+      <element>markdown.extensions.tables</element>
+      <element>markdown.extensions.toc</element>
+      <element>markdown.extensions.wikilinks</element>
       <element>mdx_linkify</element>
+      <element>pymdownx.arithmatex</element>
+      <element>pymdownx.betterem</element>
+      <element>pymdownx.caret</element>
+      <element>pymdownx.critic</element>
+      <element>pymdownx.details</element>
+      <element>pymdownx.escapeall</element>
+      <element>pymdownx.extra</element>
+      <element>pymdownx.fancylists</element>
+      <element>pymdownx.highlight</element>
+      <element>pymdownx.inlinehilite</element>
+      <element>pymdownx.keys</element>
+      <element>pymdownx.magiclink</element>
+      <element>pymdownx.mark</element>
+      <element>pymdownx.pathconverter</element>
+      <element>pymdownx.progressbar</element>
+      <element>pymdownx.quotes</element>
+      <element>pymdownx.saneheaders</element>
+      <element>pymdownx.smartsymbols</element>
+      <element>pymdownx.superfences</element>
+      <element>pymdownx.tabbed</element>
+      <element>pymdownx.tasklist</element>
+      <element>pymdownx.tilde</element>
     </value>
   </record>
 </registry>

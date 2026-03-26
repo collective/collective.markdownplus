@@ -1,6 +1,7 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:gs="http://namespaces.zope.org/genericsetup"
+    i18n_domain="collective.markdownplus"
 >
 
   <include package=".browser" />
@@ -11,6 +12,7 @@
       directory="profiles/default"
       description="Adds a markdown widget for rich text fields with MIME text/markdown."
       provides="Products.GenericSetup.interfaces.EXTENSION"
+            post_handler=".setuphandlers.install_portal_transform"
       />
 
   <gs:registerProfile
@@ -19,6 +21,7 @@
       directory="profiles/uninstall"
       description="Uninstalls collective.markdownplus."
       provides="Products.GenericSetup.interfaces.EXTENSION"
+            post_handler=".setuphandlers.uninstall_portal_transform"
       />
 
 </configure>

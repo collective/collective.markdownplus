@@ -24,4 +24,12 @@
       permission="zope2.View"
       />
 
+    <browser:page
+            name="markdownplus-preview"
+            class=".preview.MarkdownPreviewView"
+            for="*"
+            layer="collective.markdownplus.interfaces.IMarkdownPlusLayer"
+            permission="zope2.View"
+            />
+
 </configure>

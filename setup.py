@@ -32,6 +32,7 @@ setup(
         "Markdown",
         "Pygments",
         "mdx-linkify",
+        "pymdown-extensions",
         "plone.app.z3cform",
         "plone.app.textfield",
         "z3c.form",

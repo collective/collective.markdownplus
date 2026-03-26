@@ -5,6 +5,7 @@ from plone.app.textfield.value import RichTextValue
 from plone.app.z3cform.widgets.richtext import RichTextWidget
 from plone.app.z3cform.widgets.richtext import RichTextWidgetBase
 from z3c.form.widget import FieldWidget
+from zope.component.hooks import getSite
 
 
 MARKDOWN_MIME_TYPES = ("text/markdown", "text/x-web-markdown")
@@ -78,9 +79,15 @@ class MarkdownEditorWidget(RichTextWidget):
         )
 
     def get_markdown_options(self):
+        preview_url = ""
+        portal = getSite()
+        if portal is not None:
+            preview_url = "{}/@@markdownplus-preview".format(portal.absolute_url())
+
         return {
             "preview": True,
             "theme": "light",
+            "previewUrl": preview_url,
         }
 
 

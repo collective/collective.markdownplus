@@ -1,5 +1,8 @@
 import unittest
 
+from collective.markdownplus.renderer import DEFAULT_MARKDOWN_EXTENSIONS
+from collective.markdownplus.setuphandlers import DEFAULT_TRANSFORM_MODULE
+from collective.markdownplus.setuphandlers import MARKDOWNPLUS_TRANSFORM_MODULE
 from collective.markdownplus.testing import (
     COLLECTIVE_MARKDOWNPLUS_INTEGRATION_TESTING,
 )
@@ -13,7 +16,9 @@ class TestInstallationProfile(unittest.TestCase):
     layer = COLLECTIVE_MARKDOWNPLUS_INTEGRATION_TESTING
 
     def test_uninstall_profile_registered(self):
-        portal_setup = self.layer["portal"]["portal_setup"]
+        portal = self.layer["portal"]
+        assert portal is not None
+        portal_setup = portal["portal_setup"]
         profile_ids = [info["id"] for info in portal_setup.listProfileInfo()]
 
         self.assertIn(
@@ -29,20 +34,31 @@ class TestInstallationProfile(unittest.TestCase):
             tuple(settings.allowed_types),
         )
         self.assertEqual(
-            [
-                "markdown.extensions.fenced_code",
-                "markdown.extensions.nl2br",
-                "markdown.extensions.extra",
-                "markdown.extensions.codehilite",
-                "mdx_linkify",
-            ],
+            DEFAULT_MARKDOWN_EXTENSIONS,
             list(settings.markdown_extensions),
+        )
+
+    def test_profile_installs_custom_markdown_portal_transform(self):
+        portal = self.layer["portal"]
+        assert portal is not None
+
+        self.assertEqual(
+            MARKDOWNPLUS_TRANSFORM_MODULE,
+            portal.portal_transforms.markdown_to_html.module,
         )
 
     def test_uninstall_profile_removes_markdownplus_settings(self):
         portal = self.layer["portal"]
+        assert portal is not None
         applyProfile(portal, "collective.markdownplus:uninstall")
         settings = getUtility(IRegistry).forInterface(IMarkupSchema, prefix="plone")
 
         self.assertNotIn("text/x-web-markdown", tuple(settings.allowed_types))
         self.assertNotIn("mdx_linkify", list(settings.markdown_extensions))
+        self.assertNotIn("pymdownx.arithmatex", list(settings.markdown_extensions))
+        self.assertNotIn("pymdownx.tilde", list(settings.markdown_extensions))
+        self.assertNotIn("pymdownx.tasklist", list(settings.markdown_extensions))
+        self.assertEqual(
+            DEFAULT_TRANSFORM_MODULE,
+            portal.portal_transforms.markdown_to_html.module,
+        )
