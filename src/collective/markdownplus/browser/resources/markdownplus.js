@@ -10,9 +10,16 @@
   function MarkdownPlus(textarea) {
     this.textarea = textarea;
     this.wrapper = null;
+    this.editorPane = null;
     this.toolbar = null;
     this.preview = null;
-    this.onInput = this.renderPreview.bind(this);
+    this.selector = null;
+    this.originalParent = textarea.parentNode;
+    this.originalTextareaNextSibling = textarea.nextSibling;
+    this.originalSelectorParent = null;
+    this.originalSelectorNextSibling = null;
+    this.onInput = this.handleInput.bind(this);
+    this.onResize = this.syncPaneHeights.bind(this);
   }
 
   MarkdownPlus.prototype.init = function () {
@@ -21,18 +28,32 @@
       return;
     }
 
+    this.selector = findAssociatedSelector(this.textarea);
+    if (this.selector) {
+      this.originalSelectorParent = this.selector.parentNode;
+      this.originalSelectorNextSibling = this.selector.nextSibling;
+      this.selector.classList.add("mp-mime-selector");
+    }
+
     this.textarea.classList.add("mp-editor-input");
 
     this.wrapper = document.createElement("div");
     this.wrapper.className = "mp-editor-wrap";
     this.textarea.parentNode.insertBefore(this.wrapper, this.textarea);
-    this.wrapper.appendChild(this.textarea);
 
     this.toolbar = document.createElement("div");
     this.toolbar.className = "mp-toolbar";
     this.toolbar.setAttribute("role", "toolbar");
     this.toolbar.setAttribute("aria-label", "Markdown formatting toolbar");
-    this.wrapper.insertBefore(this.toolbar, this.textarea);
+    this.wrapper.appendChild(this.toolbar);
+
+    this.editorPane = document.createElement("div");
+    this.editorPane.className = "mp-editor-pane";
+    this.wrapper.appendChild(this.editorPane);
+    this.editorPane.appendChild(this.textarea);
+    if (this.selector) {
+      this.editorPane.appendChild(this.selector);
+    }
 
     this.preview = document.createElement("div");
     this.preview.className = "mp-preview";
@@ -41,18 +62,27 @@
 
     this.buildToolbar();
     this.textarea.addEventListener("input", this.onInput);
-    this.renderPreview();
+    window.addEventListener("resize", this.onResize);
+    this.handleInput();
     instances.set(this.textarea, this);
   };
 
   MarkdownPlus.prototype.destroy = function () {
     this.textarea.removeEventListener("input", this.onInput);
+    window.removeEventListener("resize", this.onResize);
     this.textarea.classList.remove("mp-editor-input", "pat-markdownplus");
     this.textarea.removeAttribute("data-pat-markdownplus");
+    if (this.selector) {
+      this.selector.classList.remove("mp-mime-selector");
+    }
 
     if (this.toolbar) {
       this.toolbar.remove();
       this.toolbar = null;
+    }
+    if (this.editorPane) {
+      this.editorPane.remove();
+      this.editorPane = null;
     }
     if (this.preview) {
       this.preview.remove();
@@ -64,6 +94,15 @@
       this.wrapper.remove();
       this.wrapper = null;
     }
+
+    if (this.selector && this.originalSelectorParent) {
+      if (this.originalSelectorNextSibling && this.originalSelectorNextSibling.parentNode === this.originalSelectorParent) {
+        this.originalSelectorParent.insertBefore(this.selector, this.originalSelectorNextSibling);
+      } else {
+        this.originalSelectorParent.appendChild(this.selector);
+      }
+    }
+
     instances.delete(this.textarea);
   };
 
@@ -100,7 +139,35 @@
     this.textarea.focus();
     this.textarea.selectionStart = start + prefix.length;
     this.textarea.selectionEnd = end + prefix.length;
+    this.handleInput();
+  };
+
+  MarkdownPlus.prototype.handleInput = function () {
+    this.autoGrow();
     this.renderPreview();
+    this.syncPaneHeights();
+  };
+
+  MarkdownPlus.prototype.autoGrow = function () {
+    this.textarea.style.height = "auto";
+  };
+
+  MarkdownPlus.prototype.syncPaneHeights = function () {
+    if (!this.preview) {
+      return;
+    }
+
+    this.preview.style.height = "auto";
+    var computed = window.getComputedStyle(this.textarea);
+    var minHeight = parseFloat(computed.minHeight) || 0;
+    var targetHeight = Math.max(
+      minHeight,
+      this.textarea.scrollHeight,
+      this.preview.scrollHeight
+    );
+
+    this.textarea.style.height = targetHeight + "px";
+    this.preview.style.height = targetHeight + "px";
   };
 
   MarkdownPlus.prototype.renderPreview = function () {
@@ -147,7 +214,7 @@
       var instance = new MarkdownPlus(textarea);
       instance.init();
     } else {
-      instances.get(textarea).renderPreview();
+      instances.get(textarea).handleInput();
     }
   }
 
@@ -165,6 +232,15 @@
     }
     return Array.prototype.slice.call(
       document.querySelectorAll('textarea[name="' + textareaName + '"]')
+    );
+  }
+
+  function findAssociatedSelector(textarea) {
+    if (!textarea.name) {
+      return null;
+    }
+    return document.querySelector(
+      'select.pat-textareamimetypeselector[name="' + textarea.name + '.mimeType"]'
     );
   }
 
