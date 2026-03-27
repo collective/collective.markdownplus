@@ -1,5 +1,7 @@
-include *.rst
+include *.md
 include Makefile
+recursive-include news *.md *.jinja
+recursive-include news *.internal
 recursive-include src *.zcml *.xml *.pt *.css *.js
 recursive-include src *.py
 recursive-include src *.woff2

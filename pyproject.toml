@@ -2,7 +2,45 @@
 # https://github.com/plone/meta/tree/main/src/plone/meta/default
 # See the inline comments on how to expand/tweak this configuration file
 [build-system]
-requires = ["setuptools>=68.2,<82", "wheel"]
+requires = ["setuptools>=68.2,<83", "wheel"]
+
+[tool.towncrier]
+directory = "news/"
+filename = "CHANGES.md"
+start_string = "<!-- towncrier release notes start -->\n"
+title_format = "## {version} ({project_date})"
+template = "news/.changelog_template.jinja"
+underlines = ["", "", ""]
+
+[[tool.towncrier.type]]
+directory = "breaking"
+name = "Breaking changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "feature"
+name = "New features"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "bugfix"
+name = "Bug fixes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "internal"
+name = "Internal"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "documentation"
+name = "Documentation"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "tests"
+name = "Tests"
+showcontent = true
 
 ##
 # Add extra configuration options in .meta.toml:
@@ -45,14 +83,6 @@ skip = "*.po,*.min.js,*.min.css,src/collective/markdownplus/browser/resources/ve
 ##
 
 [tool.dependencychecker]
-Plone = [
-  'Products.CMFCore', 'Products.Five', 'Products.GenericSetup',
-  'Products.PortalTransforms', 'lxml', 'plone.base', 'plone.registry',
-  'plone.theme', 'zope.component'
-]
-Pygments = ['pygments']
-mdx-linkify = ['mdx_linkify']
-pymdown-extensions = ['pymdownx']
 Zope = [
   # Zope own provided namespaces
   'App', 'OFS', 'Products.Five', 'Products.OFSP', 'Products.PageTemplates',
@@ -92,6 +122,10 @@ Zope = [
 ]
 python-dateutil = ['dateutil']
 pytest-plone = ['pytest', 'zope.pytestlayer', 'plone.testing', 'plone.app.testing']
+Plone = ['Products.CMFCore', 'Products.Five', 'Products.GenericSetup', 'Products.PortalTransforms', 'lxml', 'plone.base', 'plone.registry', 'plone.theme', 'zope.component']
+Pygments = ['pygments']
+mdx-linkify = ['mdx_linkify']
+pymdown-extensions = ['pymdownx']
 
 ##
 # Add extra configuration options in .meta.toml:
@@ -111,8 +145,9 @@ ignore = [
     ".pre-commit-config.yaml",
     "dependabot.yml",
     "mx.ini",
-  "pyproject.toml",
     "tox.ini",
+	"pyproject.toml",
+	"tmp/installed.txt",
 
 ]
 

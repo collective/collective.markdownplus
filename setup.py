@@ -1,21 +1,23 @@
+from pathlib import Path
 from setuptools import find_namespace_packages
 from setuptools import setup
+
+
+def read_text(path):
+    return Path(path).read_text(encoding="utf-8")
+
 
 setup(
     name="collective.markdownplus",
     version="0.1.0.dev0",
     description="Markdown editor widget for Plone rich text fields",
-    long_description=(
-        open("README.rst", encoding="utf-8").read()
-        + "\n\n"
-        + "Changelog\n---------\n\n"
-        + "\n".join(open("CHANGES.rst", encoding="utf-8").read().splitlines()[3:])
-    ),
-    long_description_content_type="text/x-rst",
+    long_description=read_text("README.md") + "\n\n" + read_text("CHANGES.md"),
+    long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Framework :: Plone",
-        "Framework :: Plone :: 6.0",
+        "Framework :: Plone :: 6.1",
+        "Framework :: Plone :: 6.2",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.10",
@@ -36,7 +38,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "setuptools",
-        "Plone",
+        "Plone>=6.1",
         "Markdown",
         "Pygments",
         "mdx-linkify",
