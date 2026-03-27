@@ -1,3 +1,4 @@
+from collective.markdownplus.settings import get_markdownplus_settings
 from lxml import etree
 from plone.app.textfield.value import RichTextValue
 from plone.app.z3cform.widgets.richtext import RichTextWidget
@@ -131,10 +132,14 @@ class MarkdownEditorWidget(RichTextWidget):
         if portal is not None:
             preview_url = f"{portal.absolute_url()}/@@markdownplus-preview"
 
+        settings = get_markdownplus_settings()
+
         return {
             "preview": True,
-            "theme": "light",
+            "theme": settings["pygments_style"],
             "previewUrl": preview_url,
+            "pygmentsStyle": settings["pygments_style"],
+            "terminalBackground": settings["terminal_background"],
         }
 
 

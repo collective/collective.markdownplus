@@ -251,7 +251,7 @@
 }
 
 .mp-code {
-  background: #0f1720;
+  background: var(--mp-terminal-bg, #272822);
   color: #d8ecff;
   border-radius: 6px;
   padding: 0.9rem;
@@ -259,7 +259,7 @@
 }
 
 .codehilite {
-  background: #272822;
+  background: var(--mp-terminal-bg, #272822);
   border-radius: 8px;
   margin: 1rem 0;
   padding: 1rem 1.15rem;

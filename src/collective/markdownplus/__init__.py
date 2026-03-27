@@ -1,1 +1,0 @@
-"""collective.markdownplus package."""

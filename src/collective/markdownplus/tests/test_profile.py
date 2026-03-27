@@ -1,4 +1,7 @@
+from collective.markdownplus.interfaces import IMarkdownPlusSettings
 from collective.markdownplus.renderer import DEFAULT_MARKDOWN_EXTENSIONS
+from collective.markdownplus.settings import DEFAULT_PYGMENTS_STYLE
+from collective.markdownplus.settings import DEFAULT_TERMINAL_BACKGROUND
 from collective.markdownplus.setuphandlers import DEFAULT_TRANSFORM_MODULE
 from collective.markdownplus.setuphandlers import MARKDOWNPLUS_TRANSFORM_MODULE
 from collective.markdownplus.testing import COLLECTIVE_MARKDOWNPLUS_INTEGRATION_TESTING
@@ -44,6 +47,15 @@ class TestInstallationProfile(unittest.TestCase):
             MARKDOWNPLUS_TRANSFORM_MODULE,
             portal.portal_transforms.markdown_to_html.module,
         )
+
+    def test_profile_configures_markdownplus_settings(self):
+        settings = getUtility(IRegistry).forInterface(
+            IMarkdownPlusSettings,
+            prefix="collective.markdownplus",
+        )
+
+        self.assertEqual(DEFAULT_PYGMENTS_STYLE, settings.pygments_style)
+        self.assertEqual(DEFAULT_TERMINAL_BACKGROUND, settings.terminal_background)
 
     def test_uninstall_profile_removes_markdownplus_settings(self):
         portal = self.layer["portal"]

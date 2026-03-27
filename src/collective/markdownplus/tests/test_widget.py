@@ -1,5 +1,7 @@
 from collective.markdownplus.browser.widget import MarkdownEditorFieldWidget
 from collective.markdownplus.browser.widget import MarkdownEditorWidget
+from collective.markdownplus.settings import DEFAULT_PYGMENTS_STYLE
+from collective.markdownplus.settings import DEFAULT_TERMINAL_BACKGROUND
 from collective.markdownplus.testing import COLLECTIVE_MARKDOWNPLUS_INTEGRATION_TESTING
 from plone.app.textfield import RichText
 from plone.app.textfield.value import RichTextValue
@@ -25,7 +27,13 @@ class TestWidgetFactory(unittest.TestCase):
         widget = MarkdownEditorWidget(TestRequest())
 
         self.assertEqual(
-            {"preview": True, "theme": "light", "previewUrl": ""},
+            {
+                "preview": True,
+                "theme": DEFAULT_PYGMENTS_STYLE,
+                "previewUrl": "",
+                "pygmentsStyle": DEFAULT_PYGMENTS_STYLE,
+                "terminalBackground": DEFAULT_TERMINAL_BACKGROUND,
+            },
             widget.get_markdown_options(),
         )
 

@@ -74,7 +74,7 @@ target-version = ["py310"]
 
 [tool.codespell]
 ignore-words-list = "discreet,assertin,thet,"
-skip = "*.po,*.min.js,*.min.css,src/collective/markdownplus/browser/resources/vendor/*,src/collective/markdownplus/browser/resources/pygmentize.css"
+skip = "*.po,*.min.js,*.min.css,src/collective/markdownplus/browser/resources/vendor/*,src/collective/markdownplus/browser/resources/pygmentize.css,src/collective/markdownplus/browser/resources/pygments/*"
 ##
 # Add extra configuration options in .meta.toml:
 #  [pyproject]
@@ -147,7 +147,6 @@ ignore = [
     "mx.ini",
     "tox.ini",
 	"pyproject.toml",
-	"tmp/installed.txt",
 
 ]
 
@@ -165,6 +164,8 @@ ignore = [
 #  """
 ##
 
+[tool.pylint."messages control"]
+disable = ["C0411"]
 
 ##
 # Add extra configuration options in .meta.toml:

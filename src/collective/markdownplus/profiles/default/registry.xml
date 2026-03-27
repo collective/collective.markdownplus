@@ -55,4 +55,16 @@
       <element>pymdownx.tilde</element>
     </value>
   </record>
+  <record field="pygments_style"
+          interface="collective.markdownplus.interfaces.IMarkdownPlusSettings"
+          name="collective.markdownplus.pygments_style"
+  >
+    <value>monokai</value>
+  </record>
+  <record field="terminal_background"
+          interface="collective.markdownplus.interfaces.IMarkdownPlusSettings"
+          name="collective.markdownplus.terminal_background"
+  >
+    <value>#272822</value>
+  </record>
 </registry>

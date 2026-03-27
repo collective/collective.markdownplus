@@ -32,4 +32,12 @@
       layer="collective.markdownplus.interfaces.IMarkdownPlusLayer"
       />
 
+  <browser:page
+      name="markdownplus-controlpanel"
+      for="plone.base.interfaces.IPloneSiteRoot"
+      class=".controlpanel.MarkdownPlusSettingsControlPanel"
+      permission="cmf.ManagePortal"
+      layer="collective.markdownplus.interfaces.IMarkdownPlusLayer"
+      />
+
 </configure>

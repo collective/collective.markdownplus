@@ -8,15 +8,18 @@ commit-id = "2.6.0"
 [pyproject]
 check_manifest_ignores = """
 	\"pyproject.toml\",
-	\"tmp/installed.txt\",
 """
-codespell_skip = "*.min.js,*.min.css,src/collective/markdownplus/browser/resources/vendor/*,src/collective/markdownplus/browser/resources/pygmentize.css"
+codespell_skip = "*.min.js,*.min.css,src/collective/markdownplus/browser/resources/vendor/*,src/collective/markdownplus/browser/resources/pygmentize.css,src/collective/markdownplus/browser/resources/pygments/*"
 dependencies_mappings = [
 	"Plone = ['Products.CMFCore', 'Products.Five', 'Products.GenericSetup', 'Products.PortalTransforms', 'lxml', 'plone.base', 'plone.registry', 'plone.theme', 'zope.component']",
 	"Pygments = ['pygments']",
 	"mdx-linkify = ['mdx_linkify']",
 	"pymdown-extensions = ['pymdownx']",
 ]
+extra_lines = """
+[tool.pylint."messages control"]
+disable = ["C0411"]
+"""
 
 [tox]
 test_matrix = { "6.2" = ["3.14", "3.10"], "6.1" = ["3.13", "3.10"] }

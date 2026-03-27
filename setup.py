@@ -1,23 +1,23 @@
 from pathlib import Path
-from setuptools import find_namespace_packages
 from setuptools import setup
-
-
-def read_text(path):
-    return Path(path).read_text(encoding="utf-8")
-
 
 setup(
     name="collective.markdownplus",
     version="0.1.0.dev0",
     description="Markdown editor widget for Plone rich text fields",
-    long_description=read_text("README.md") + "\n\n" + read_text("CHANGES.md"),
+    long_description="\n\n".join(
+        [
+            Path("README.md").read_text(encoding="utf-8"),
+            Path("CHANGES.md").read_text(encoding="utf-8"),
+        ]
+    ),
     long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Framework :: Plone",
         "Framework :: Plone :: 6.1",
         "Framework :: Plone :: 6.2",
+        "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.10",
@@ -30,9 +30,14 @@ setup(
     author="collective",
     author_email="collective@plone.org",
     url="https://github.com/collective/collective.markdownplus",
-    license="GPL version 2",
-    packages=find_namespace_packages("src"),
-    package_dir={"": "src"},
+    project_urls={
+        "PyPI": "https://pypi.org/project/collective.markdownplus",
+        "Source": "https://github.com/collective/collective.markdownplus",
+        "Issue Tracker": "https://github.com/collective/collective.markdownplus/issues",
+        "Changelog": "https://github.com/collective/collective.markdownplus/CHANGES.md",
+    },
+    license="MIT",
+    license_files=("LICENSE.txt",),
     include_package_data=True,
     python_requires=">=3.10",
     zip_safe=False,
@@ -44,11 +49,13 @@ setup(
         "mdx-linkify",
         "pymdown-extensions",
         "lxml",
+        "plone.app.registry",
         "plone.app.z3cform",
         "plone.app.textfield",
         "z3c.form",
         "zope.component",
         "zope.interface",
+        "zope.schema",
     ],
     extras_require={
         "test": [
