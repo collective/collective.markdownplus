@@ -54,6 +54,17 @@ MERMAID_BLOCK_RE = re.compile(
     re.MULTILINE | re.DOTALL,
 )
 
+# Matches <input type="checkbox" ... checked .../> (order of attributes may vary)
+_CHECKBOX_CHECKED_RE = re.compile(
+    r'<input\s[^>]*type=["\']checkbox["\'][^>]*\bchecked\b[^>]*/?>',
+    re.IGNORECASE,
+)
+# Matches any remaining <input type="checkbox" .../> (unchecked)
+_CHECKBOX_UNCHECKED_RE = re.compile(
+    r'<input\s[^>]*type=["\']checkbox["\'][^>]*/?>',
+    re.IGNORECASE,
+)
+
 
 def get_markdown_extensions():
     """Return markdown extensions configured in registry.
@@ -91,6 +102,19 @@ def _restore_mermaid_blocks(rendered_html, replacements):
     return output
 
 
+def _replace_task_checkboxes(rendered_html):
+    """Replace <input type="checkbox"> with spans so Plone's safe_html doesn't strip them."""
+    out = _CHECKBOX_CHECKED_RE.sub(
+        '<span class="task-checkbox task-checkbox-checked" aria-checked="true"></span>',
+        rendered_html,
+    )
+    out = _CHECKBOX_UNCHECKED_RE.sub(
+        '<span class="task-checkbox task-checkbox-unchecked" aria-checked="false"></span>',
+        out,
+    )
+    return out
+
+
 def render_markdown_to_html(text):
     """Render markdown text to HTML with the configured Plone extensions."""
 
@@ -104,9 +128,10 @@ def render_markdown_to_html(text):
             },
             "pymdownx.arithmatex": {
                 "generic": True,
-            }
+            },
         },
         output_format="html5",
     )
     rendered = renderer.convert(markdown_input)
+    rendered = _replace_task_checkboxes(rendered)
     return _restore_mermaid_blocks(rendered, replacements)

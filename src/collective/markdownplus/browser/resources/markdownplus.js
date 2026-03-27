@@ -21,8 +21,10 @@
     this.originalSelectorParent = null;
     this.originalSelectorNextSibling = null;
     this.renderNonce = 0;
+    this.zenBtn = null;
     this.onInput = this.handleInput.bind(this);
     this.onResize = this.syncPaneHeights.bind(this);
+    this.onKeyDown = this.handleKeyDown.bind(this);
   }
 
   MarkdownPlus.prototype.init = function () {
@@ -66,6 +68,7 @@
     this.buildToolbar();
     this.textarea.addEventListener("input", this.onInput);
     window.addEventListener("resize", this.onResize);
+    document.addEventListener("keydown", this.onKeyDown);
     this.handleInput();
     instances.set(this.textarea, this);
   };
@@ -73,6 +76,10 @@
   MarkdownPlus.prototype.destroy = function () {
     this.textarea.removeEventListener("input", this.onInput);
     window.removeEventListener("resize", this.onResize);
+    document.removeEventListener("keydown", this.onKeyDown);
+    if (this.wrapper && this.wrapper.classList.contains("mp-zen-mode")) {
+      document.body.style.overflow = "";
+    }
     this.textarea.classList.remove("mp-editor-input", "pat-markdownplus");
     this.textarea.removeAttribute("data-pat-markdownplus");
     if (this.selector) {
@@ -111,24 +118,55 @@
 
   MarkdownPlus.prototype.buildToolbar = function () {
     var self = this;
-    var actions = [
-      { label: "B", title: "Bold", wrap: ["**", "**"] },
-      { label: "I", title: "Italic", wrap: ["*", "*"] },
-      { label: "Code", title: "Code block", wrap: ["\n```\n", "\n```\n"] },
-      { label: "Link", title: "Link", wrap: ["[", "](https://example.com)"] },
-    ];
 
-    actions.forEach(function (action) {
-      var button = document.createElement("button");
-      button.type = "button";
-      button.className = "mp-toolbar-btn";
-      button.textContent = action.label;
-      button.title = action.title;
-      button.addEventListener("click", function () {
-        self.wrapSelection(action.wrap[0], action.wrap[1]);
-      });
-      self.toolbar.appendChild(button);
+    var togglePreviewBtn = document.createElement("button");
+    togglePreviewBtn.type = "button";
+    togglePreviewBtn.className = "mp-toolbar-btn";
+    togglePreviewBtn.textContent = "Hide preview";
+    togglePreviewBtn.title = "Toggle preview pane";
+    togglePreviewBtn.addEventListener("click", function () {
+      self.togglePreview(togglePreviewBtn);
     });
+    this.toolbar.appendChild(togglePreviewBtn);
+
+    this.zenBtn = document.createElement("button");
+    this.zenBtn.type = "button";
+    this.zenBtn.className = "mp-toolbar-btn";
+    this.zenBtn.textContent = "Zen mode";
+    this.zenBtn.title = "Maximize editing area (press Esc to exit)";
+    this.zenBtn.addEventListener("click", function () {
+      self.toggleZen(self.zenBtn);
+    });
+    this.toolbar.appendChild(this.zenBtn);
+  };
+
+  MarkdownPlus.prototype.togglePreview = function (btn) {
+    var hidden = this.wrapper.classList.toggle("mp-preview-hidden");
+    btn.textContent = hidden ? "Show preview" : "Hide preview";
+    btn.classList.toggle("mp-active", hidden);
+    this.syncPaneHeights();
+  };
+
+  MarkdownPlus.prototype.toggleZen = function (btn) {
+    var active = this.wrapper.classList.toggle("mp-zen-mode");
+    if (btn) {
+      btn.textContent = active ? "Exit zen" : "Zen mode";
+      btn.classList.toggle("mp-active", active);
+    }
+    if (active) {
+      document.body.style.overflow = "hidden";
+      if (this.textarea) { this.textarea.style.height = ""; }
+      if (this.preview) { this.preview.style.height = ""; }
+    } else {
+      document.body.style.overflow = "";
+      this.syncPaneHeights();
+    }
+  };
+
+  MarkdownPlus.prototype.handleKeyDown = function (e) {
+    if (e.key === "Escape" && this.wrapper && this.wrapper.classList.contains("mp-zen-mode")) {
+      this.toggleZen(this.zenBtn);
+    }
   };
 
   MarkdownPlus.prototype.wrapSelection = function (prefix, suffix) {
@@ -156,7 +194,7 @@
   };
 
   MarkdownPlus.prototype.syncPaneHeights = function () {
-    if (!this.preview) {
+    if (!this.preview || (this.wrapper && this.wrapper.classList.contains("mp-zen-mode"))) {
       return;
     }
 
@@ -254,7 +292,13 @@
       var mermaidNode = document.createElement("div");
       mermaidNode.className = "mp-mermaid mermaid";
       mermaidNode.textContent = source;
-      pre.parentNode.replaceChild(mermaidNode, pre);
+      // If the pre is wrapped in a .codehilite div, replace that wrapper too
+      // so the mermaid node is not left inside the dark-background container.
+      var replaceTarget = pre;
+      if (pre.parentNode && pre.parentNode.classList && pre.parentNode.classList.contains("codehilite")) {
+        replaceTarget = pre.parentNode;
+      }
+      replaceTarget.parentNode.replaceChild(mermaidNode, replaceTarget);
     }
 
     // Preferred path: language class survives markdown rendering.
