@@ -2,7 +2,7 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:plone="http://namespaces.plone.org/plone"
->
+    >
 
   <browser:resourceDirectory
       name="collective.markdownplus"
@@ -11,25 +11,25 @@
 
   <adapter
       factory=".widget.MarkdownEditorFieldWidget"
-     for="plone.app.textfield.interfaces.IRichText
-         collective.markdownplus.interfaces.IMarkdownPlusLayer"
       provides="z3c.form.interfaces.IFieldWidget"
+      for="plone.app.textfield.interfaces.IRichText
+           collective.markdownplus.interfaces.IMarkdownPlusLayer"
       />
 
   <browser:viewlet
       name="collective.markdownplus.assets"
       manager="plone.app.layout.viewlets.interfaces.IHtmlHead"
       class=".viewlets.MarkdownAssetsViewlet"
-      layer="collective.markdownplus.interfaces.IMarkdownPlusLayer"
       permission="zope2.View"
+      layer="collective.markdownplus.interfaces.IMarkdownPlusLayer"
       />
 
-    <browser:page
-            name="markdownplus-preview"
-            class=".preview.MarkdownPreviewView"
-            for="*"
-            layer="collective.markdownplus.interfaces.IMarkdownPlusLayer"
-            permission="zope2.View"
-            />
+  <browser:page
+      name="markdownplus-preview"
+      for="*"
+      class=".preview.MarkdownPreviewView"
+      permission="zope2.View"
+      layer="collective.markdownplus.interfaces.IMarkdownPlusLayer"
+      />
 
 </configure>

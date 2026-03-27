@@ -4,10 +4,9 @@ Intended to run with:
     plonex run scripts/bootstrap_site.py
 """
 
-import transaction
-
 from Testing.makerequest import makerequest
 
+import transaction
 
 SITE_ID = "Plone"
 PROFILE_ID = "profile-collective.markdownplus:default"

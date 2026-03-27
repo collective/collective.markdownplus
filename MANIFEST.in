@@ -1,5 +1,10 @@
 include *.rst
+include Makefile
 recursive-include src *.zcml *.xml *.pt *.css *.js
+recursive-include src *.py
 recursive-include src *.woff2
 recursive-include src *.po *.pot *.mo
+recursive-include etc *.txt *.yml
+recursive-include plonex *.in *.py *.yml
+recursive-include scripts *.py *.sh
 global-exclude *.pyc

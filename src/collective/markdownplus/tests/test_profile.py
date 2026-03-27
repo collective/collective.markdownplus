@@ -1,15 +1,13 @@
-import unittest
-
 from collective.markdownplus.renderer import DEFAULT_MARKDOWN_EXTENSIONS
 from collective.markdownplus.setuphandlers import DEFAULT_TRANSFORM_MODULE
 from collective.markdownplus.setuphandlers import MARKDOWNPLUS_TRANSFORM_MODULE
-from collective.markdownplus.testing import (
-    COLLECTIVE_MARKDOWNPLUS_INTEGRATION_TESTING,
-)
+from collective.markdownplus.testing import COLLECTIVE_MARKDOWNPLUS_INTEGRATION_TESTING
 from plone.app.testing import applyProfile
 from plone.base.interfaces import IMarkupSchema
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
+
+import unittest
 
 
 class TestInstallationProfile(unittest.TestCase):

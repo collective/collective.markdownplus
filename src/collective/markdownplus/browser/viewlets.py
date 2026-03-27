@@ -1,6 +1,5 @@
 import importlib
 
-
 ViewletBase = importlib.import_module("plone.app.layout.viewlets.common").ViewletBase
 getSite = importlib.import_module("zope.component.hooks").getSite
 

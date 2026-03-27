@@ -1,10 +1,8 @@
+from collective.markdownplus.renderer import render_markdown_to_html
+from collective.markdownplus.testing import COLLECTIVE_MARKDOWNPLUS_INTEGRATION_TESTING
+
 import json
 import unittest
-
-from collective.markdownplus.renderer import render_markdown_to_html
-from collective.markdownplus.testing import (
-    COLLECTIVE_MARKDOWNPLUS_INTEGRATION_TESTING,
-)
 
 
 class TestRenderer(unittest.TestCase):

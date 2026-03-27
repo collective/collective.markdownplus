@@ -1,8 +1,8 @@
-import unittest
-
 from collective.markdownplus.interfaces import IMarkdownPlusLayer
 from plone.app.z3cform.interfaces import IPloneFormLayer
 from plone.theme.interfaces import IDefaultPloneLayer
+
+import unittest
 
 
 class TestBrowserLayer(unittest.TestCase):

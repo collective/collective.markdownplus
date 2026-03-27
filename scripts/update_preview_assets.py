@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import re
-import urllib.request
 from pathlib import Path
 
+import re
+import urllib.request
 
 ASSETS = {
     "katex/katex.min.css": "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css",
@@ -12,7 +12,10 @@ ASSETS = {
     "mermaid/mermaid.min.js": "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js",
 }
 
-ROOT = Path(__file__).resolve().parent.parent / "src/collective/markdownplus/browser/resources/vendor"
+ROOT = (
+    Path(__file__).resolve().parent.parent
+    / "src/collective/markdownplus/browser/resources/vendor"
+)
 
 
 def download(url, target):

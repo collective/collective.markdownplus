@@ -1,10 +1,6 @@
-import unittest
-
 from collective.markdownplus.browser.widget import MarkdownEditorFieldWidget
 from collective.markdownplus.browser.widget import MarkdownEditorWidget
-from collective.markdownplus.testing import (
-    COLLECTIVE_MARKDOWNPLUS_INTEGRATION_TESTING,
-)
+from collective.markdownplus.testing import COLLECTIVE_MARKDOWNPLUS_INTEGRATION_TESTING
 from plone.app.textfield import RichText
 from plone.app.textfield.value import RichTextValue
 from plone.base.interfaces import IMarkupSchema
@@ -12,6 +8,8 @@ from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
 from zope.publisher.browser import TestRequest
 from zope.schema import Text
+
+import unittest
 
 
 class TestWidgetFactory(unittest.TestCase):
@@ -42,10 +40,14 @@ class TestRichTextMarkdownWidget(unittest.TestCase):
         self.request = self.layer["request"]
 
     def test_renders_mimetype_selector_and_marks_markdown_textarea(self):
-        field = RichText(__name__="body", title="Body", default_mime_type="text/x-web-markdown")
+        field = RichText(
+            __name__="body", title="Body", default_mime_type="text/x-web-markdown"
+        )
         widget = MarkdownEditorFieldWidget(field, self.request)
         widget.context = self.layer["portal"]
-        widget.value = RichTextValue("## This is a test", mimeType="text/x-web-markdown")
+        widget.value = RichTextValue(
+            "## This is a test", mimeType="text/x-web-markdown"
+        )
 
         rendered = widget.render()
 

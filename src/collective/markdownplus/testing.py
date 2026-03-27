@@ -1,6 +1,6 @@
+from plone.app.testing import applyProfile
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import PloneSandboxLayer
-from plone.app.testing import applyProfile
 
 
 class CollectiveMarkdownPlusLayer(PloneSandboxLayer):

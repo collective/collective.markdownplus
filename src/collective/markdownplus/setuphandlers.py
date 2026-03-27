@@ -1,6 +1,5 @@
 from Products.CMFCore.utils import getToolByName
 
-
 DEFAULT_TRANSFORM_MODULE = "Products.PortalTransforms.transforms.markdown_to_html"
 MARKDOWNPLUS_TRANSFORM_MODULE = "collective.markdownplus.portaltransform"
 TRANSFORM_ID = "markdown_to_html"

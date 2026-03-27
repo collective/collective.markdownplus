@@ -1,8 +1,7 @@
+from collective.markdownplus.renderer import render_markdown_to_html
 from plone.base.utils import safe_text
 from Products.PortalTransforms.interfaces import ITransform
 from zope.interface import implementer
-
-from collective.markdownplus.renderer import render_markdown_to_html
 
 
 @implementer(ITransform)

@@ -4,10 +4,9 @@ The canonical bootstrap script is now at scripts/bootstrap_site.py.
 Use: plonex run scripts/bootstrap_site.py
 """
 
-import transaction
-
 from Testing.makerequest import makerequest
 
+import transaction
 
 SITE_ID = "Plone"
 PROFILE_ID = "profile-collective.markdownplus:default"

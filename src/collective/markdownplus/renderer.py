@@ -1,11 +1,15 @@
-import html
-import re
-
 from markdown import Markdown
 from plone.base.interfaces import IMarkupSchema
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
 
+import html
+import mdx_linkify
+import pygments
+import pymdownx
+import re
+
+_DYNAMIC_MARKDOWN_PACKAGES = (mdx_linkify, pygments, pymdownx)
 
 DEFAULT_MARKDOWN_EXTENSIONS = [
     "markdown.extensions.abbr",
@@ -84,12 +88,12 @@ def _extract_mermaid_blocks(text):
     replacements = {}
 
     def repl(match):
-        token = "@@MP_MERMAID_{}@@".format(len(replacements))
+        token = f"@@MP_MERMAID_{len(replacements)}@@"
         body = (match.group("body") or "").strip("\n")
         replacements[token] = '<div class="mp-mermaid mermaid">{}</div>'.format(
             html.escape(body)
         )
-        return "\n{}\n".format(token)
+        return f"\n{token}\n"
 
     return MERMAID_BLOCK_RE.sub(repl, text or ""), replacements
 
@@ -97,7 +101,7 @@ def _extract_mermaid_blocks(text):
 def _restore_mermaid_blocks(rendered_html, replacements):
     output = rendered_html
     for token, mermaid_html in replacements.items():
-        output = output.replace("<p>{}</p>".format(token), mermaid_html)
+        output = output.replace(f"<p>{token}</p>", mermaid_html)
         output = output.replace(token, mermaid_html)
     return output
 
