@@ -1,1 +1,0 @@
-Initial MVP scaffold.
