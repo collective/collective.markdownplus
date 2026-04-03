@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="collective.markdownplus",
-    version="0.0.1",
+    version="0.0.2.dev0",
     description="Markdown editor widget for Plone rich text fields",
     long_description="\n\n".join(
         [
