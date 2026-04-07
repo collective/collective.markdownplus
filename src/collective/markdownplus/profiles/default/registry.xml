@@ -23,7 +23,6 @@
       <element>markdown.extensions.extra</element>
       <element>markdown.extensions.footnotes</element>
       <element>markdown.extensions.md_in_html</element>
-      <element>markdown.extensions.meta</element>
       <element>markdown.extensions.nl2br</element>
       <element>markdown.extensions.sane_lists</element>
       <element>markdown.extensions.smarty</element>
