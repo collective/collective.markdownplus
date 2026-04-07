@@ -44,6 +44,7 @@ setup(
     install_requires=[
         "setuptools",
         "Plone>=6.1",
+        "collective.ftw.upgrade",
         "Markdown",
         "Pygments",
         "mdx-linkify",

@@ -24,4 +24,6 @@
       post_handler=".setuphandlers.uninstall_portal_transform"
       />
 
+  <include package=".upgrades" />
+
 </configure>
